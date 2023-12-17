@@ -32,7 +32,7 @@ function App() {
 
 
 
-        const index = nItems.findIndex((item:Items) => item.date === date && item.id !== formId);
+        const index = nItems.findIndex((item:Items) => moment(item.date).format('DD.MM.yyyy') === moment(date).format('DD.MM.yyyy') && item.id !== formId);
         
         if(index !== -1) {
            nItems[index].distance = Number((nItems[index].distance + distance).toFixed(1));
@@ -101,7 +101,7 @@ function App() {
       
       <button className='submit'>OK</button>
     </form>
-
+    
     <Container items={items} onHandler={onHandler}/>
      
     </>
