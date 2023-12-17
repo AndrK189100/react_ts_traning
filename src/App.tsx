@@ -1,7 +1,8 @@
-import React, { useRef, useState } from 'react'
+import React, {useRef, useState } from 'react'
 import uuid from 'react-uuid';
 import moment from 'moment';
 import './App.css'
+import Container from './container/container';
 
 type Items = {
   id: string;
@@ -21,26 +22,43 @@ function App() {
     const {currentTarget} = e;
     
     const date = currentTarget.date.value ? Date.parse(currentTarget.date.value) : Date.now();
-    const distance = !currentTarget.distance.value ? 0.1: Number(currentTarget.distance.value);
+    const distance = Number(!currentTarget.distance.value ? 0.1: Number(currentTarget.distance.value).toFixed(1));
     
 
     setItem(() => {
       
+      const nItems = JSON.parse(JSON.stringify(items));
       if(formId) {
-        const nItems = JSON.parse(JSON.stringify(items));
+
+        const index = nItems.findIndex((item:Items) => item.date === date && item.id !== formId);
+        
+        if(index !== -1) {
+           nItems[index].distance = Number((nItems[index].distance + distance).toFixed(1));
+           const oldIndex = nItems.findIndex((item:Items) => item.id === formId);
+           nItems.splice(oldIndex, 1);
+           return nItems;
+        }
+        
         nItems.forEach((item:Items) => {
           if(item.id === formId) {
             item.date = date;
-            item.distance = distance;
+            item.distance = Number(distance.toFixed(1));
           }
           
         });
+        
         return nItems
         
         }
-      return [...items, {id: uuid(), date: date, distance: distance}]
 
-      
+        const index = nItems.findIndex((item:Items) => item.date === date);
+
+        if(index !== -1) {
+          nItems[index].distance = Number((nItems[index].distance +distance).toFixed(1));
+          return nItems
+        }
+       
+      return [...nItems, {id: uuid(), date: date, distance: distance}]
       
     })
     
@@ -49,7 +67,7 @@ function App() {
     return;
   }
   
-  const onHandler = (e) => {
+  const onHandler = (e: React.BaseSyntheticEvent) => {
     e.preventDefault();
     
     if(e.target.classList.contains('delete')) setItem(items.filter(item => item.id !== e.target.parentElement.id));
@@ -82,26 +100,7 @@ function App() {
       <button className='submit'>OK</button>
     </form>
 
-    <div className='list' onClick={onHandler}>
-      <div className='item-header'>
-        <div>Дата:</div>
-        <div>Пройдено:</div>
-        <div>Действия:</div>
-      </div>
-
-      {
-        items.map(item => {
-          return(
-            <div id = {item.id} key={item.id} className='item'>
-              <div className='date-item' >{moment(item.date).format('DD.MM.yyyy')}</div>
-              <div className='distance-item'>{String(item.distance).replace('.',',')}</div>
-              <div className='change'>&#9998;</div>
-              <div className='delete'>&#10008;</div>
-            </div>
-          )
-        })
-      }
-    </div>
+    <Container items={items} onHandler={onHandler}/>
      
     </>
   )
