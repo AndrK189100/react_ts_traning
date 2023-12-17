@@ -30,6 +30,8 @@ function App() {
       const nItems = JSON.parse(JSON.stringify(items));
       if(formId) {
 
+
+
         const index = nItems.findIndex((item:Items) => item.date === date && item.id !== formId);
         
         if(index !== -1) {
@@ -51,7 +53,7 @@ function App() {
         
         }
 
-        const index = nItems.findIndex((item:Items) => item.date === date);
+        const index = nItems.findIndex((item:Items) => moment(item.date).format('DD.MM.yyyy') === moment(date).format('DD.MM.yyyy'));
 
         if(index !== -1) {
           nItems[index].distance = Number((nItems[index].distance +distance).toFixed(1));
